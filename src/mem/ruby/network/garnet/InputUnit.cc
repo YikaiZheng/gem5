@@ -79,19 +79,24 @@ InputUnit::wakeup()
     flit *t_flit;
     if (m_in_link->isReady(curTick())) {
 
+        // process input flit
         t_flit = m_in_link->consumeLink();
+
         DPRINTF(RubyNetwork, "Router[%d] Consuming:%s Width: %d Flit:%s\n",
         m_router->get_id(), m_in_link->name(),
         m_router->getBitWidth(), *t_flit);
         assert(t_flit->m_width == m_router->getBitWidth());
+
         int vc = t_flit->get_vc();
         t_flit->increment_hops(); // for stats
 
         if ((t_flit->get_type() == HEAD_) ||
             (t_flit->get_type() == HEAD_TAIL_)) {
 
-            assert(virtualChannels[vc].get_state() == IDLE_);
-            set_vc_active(vc, curTick());
+            if (!m_router->get_wormhole_enabled()){
+                assert(virtualChannels[vc].get_state() == IDLE_);
+                set_vc_active(vc, curTick());
+            }
 
             // Route computation for this vc
             int outport = m_router->route_compute(t_flit->get_route(),
@@ -103,7 +108,9 @@ InputUnit::wakeup()
             grant_outport(vc, outport);
 
         } else {
-            assert(virtualChannels[vc].get_state() == ACTIVE_);
+            if (!m_router->get_wormhole_enabled()){
+                assert(virtualChannels[vc].get_state() == ACTIVE_);
+            }
         }
 
 

@@ -82,6 +82,7 @@ class GarnetNetwork : public Network
     int getRoutingAlgorithm() const { return m_routing_algorithm; }
 
     bool isFaultModelEnabled() const { return m_enable_fault_model; }
+    bool isWormholeEnabled() const { return m_enable_wormhole; }
     FaultModel* fault_model;
 
 
@@ -167,6 +168,7 @@ class GarnetNetwork : public Network
     uint32_t m_buffers_per_data_vc;
     int m_routing_algorithm;
     bool m_enable_fault_model;
+    bool m_enable_wormhole;
 
     // Statistical variables
     statistics::Vector m_packets_received;

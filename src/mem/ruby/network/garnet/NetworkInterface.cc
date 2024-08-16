@@ -450,7 +450,12 @@ NetworkInterface::flitisizeMessage(MsgPtr msg_ptr, int vnet)
         }
 
         m_ni_out_vcs_enqueue_time[vc] = curTick();
-        outVcState[vc].setState(ACTIVE_, curTick());
+        if (!m_net_ptr->isWormholeEnabled()){
+            outVcState[vc].setState(ACTIVE_, curTick());
+        }
+        // else{
+        //     outVcState[vc].decrement_credit();
+        // }
     }
     return true ;
 }
@@ -464,11 +469,19 @@ NetworkInterface::calculateVC(int vnet)
         m_vc_allocator[vnet]++;
         if (m_vc_allocator[vnet] == m_vc_per_vnet)
             m_vc_allocator[vnet] = 0;
-
-        if (outVcState[(vnet*m_vc_per_vnet) + delta].isInState(
+        if (!m_net_ptr->isWormholeEnabled()){
+            if (outVcState[(vnet*m_vc_per_vnet) + delta].isInState(
                     IDLE_, curTick())) {
-            vc_busy_counter[vnet] = 0;
-            return ((vnet*m_vc_per_vnet) + delta);
+                vc_busy_counter[vnet] = 0;
+                return ((vnet*m_vc_per_vnet) + delta);
+            }
+        }
+        else{
+            if (outVcState[(vnet*m_vc_per_vnet) + delta].has_credit()){
+                vc_busy_counter[vnet] = 0;
+
+                return ((vnet*m_vc_per_vnet) + delta);
+            }
         }
     }
 

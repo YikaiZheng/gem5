@@ -88,7 +88,9 @@ OutputUnit::increment_credit(int out_vc)
 bool
 OutputUnit::has_credit(int out_vc)
 {
-    assert(outVcState[out_vc].isInState(ACTIVE_, curTick()));
+    if (!m_router->get_wormhole_enabled()){
+        assert(outVcState[out_vc].isInState(ACTIVE_, curTick()));
+    }
     return outVcState[out_vc].has_credit();
 }
 
@@ -99,22 +101,38 @@ OutputUnit::has_free_vc(int vnet)
 {
     int vc_base = vnet*m_vc_per_vnet;
     for (int vc = vc_base; vc < vc_base + m_vc_per_vnet; vc++) {
-        if (is_vc_idle(vc, curTick()))
-            return true;
+        if (m_router->get_wormhole_enabled()){
+            if (outVcState[vc].has_credit()){
+                return true;
+            }
+        }
+        else{
+            if (is_vc_idle(vc, curTick()))
+                return true;
+        }
     }
 
     return false;
 }
 
 // Assign a free output VC to the winner of Switch Allocation
+//TODO: modify the check for free vc
+
 int
 OutputUnit::select_free_vc(int vnet)
 {
     int vc_base = vnet*m_vc_per_vnet;
     for (int vc = vc_base; vc < vc_base + m_vc_per_vnet; vc++) {
-        if (is_vc_idle(vc, curTick())) {
-            outVcState[vc].setState(ACTIVE_, curTick());
-            return vc;
+        if (m_router->get_wormhole_enabled()){
+            if (outVcState[vc].has_credit()){
+                return vc;
+            }
+        }
+        else{
+            if (is_vc_idle(vc, curTick())) {
+                outVcState[vc].setState(ACTIVE_, curTick());
+                return vc;
+            }
         }
     }
 
@@ -129,15 +147,19 @@ OutputUnit::select_free_vc(int vnet)
  * the output VC is marked IDLE.
  */
 
+//TODO: check how to set vc state in wakeup function
+
 void
 OutputUnit::wakeup()
 {
     if (m_credit_link->isReady(curTick())) {
+        // process credit
         Credit *t_credit = (Credit*) m_credit_link->consumeLink();
         increment_credit(t_credit->get_vc());
-
-        if (t_credit->is_free_signal())
-            set_vc_state(IDLE_, t_credit->get_vc(), curTick());
+        if (!m_router->get_wormhole_enabled()){
+            if (t_credit->is_free_signal())
+                set_vc_state(IDLE_, t_credit->get_vc(), curTick());
+        }
 
         delete t_credit;
 

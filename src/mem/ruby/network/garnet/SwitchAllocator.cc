@@ -224,15 +224,22 @@ SwitchAllocator::arbitrate_outports()
                 if ((t_flit->get_type() == TAIL_) ||
                     t_flit->get_type() == HEAD_TAIL_) {
 
+                    //TODO: change isReady for input vc
+
                     // This Input VC should now be empty
-                    assert(!(input_unit->isReady(invc, curTick())));
+                    // ? Should Input VC still be empty in wormhole?
+                    if (!m_router->get_wormhole_enabled()){
+                        assert(!(input_unit->isReady(invc, curTick())));
 
-                    // Free this VC
-                    input_unit->set_vc_idle(invc, curTick());
-
-                    // Send a credit back
-                    // along with the information that this VC is now idle
-                    input_unit->increment_credit(invc, true, curTick());
+                        // Free this VC
+                        input_unit->set_vc_idle(invc, curTick());
+                        // Send a credit back
+                        // along with the information that this VC is now idle
+                        input_unit->increment_credit(invc, true, curTick());
+                    }
+                    else{
+                        input_unit->increment_credit(invc, false, curTick());
+                    }
                 } else {
                     // Send a credit back
                     // but do not indicate that the VC is idle
@@ -266,6 +273,8 @@ SwitchAllocator::arbitrate_outports()
     }
 }
 
+// TODO: modify send allowed function, only consider HEAD_TAIL
+
 /*
  * A flit can be sent only if
  * (1) there is at least one free output VC at the
@@ -296,6 +305,7 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
 
         // needs outvc
         // this is only true for HEAD and HEAD_TAIL flits.
+        // ! here we always need outvc
 
         if (output_unit->has_free_vc(vnet)) {
 

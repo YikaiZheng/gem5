@@ -30,6 +30,7 @@
 
 #include <cmath>
 #include <iomanip>
+#include <iostream>
 #include <set>
 #include <string>
 #include <vector>
@@ -236,6 +237,9 @@ GarnetSyntheticTraffic::generatePkt()
         dest_x = (src_x + (int) ceil(radix/2) - 1) % radix;
         dest_y = src_y;
         destination = dest_y*radix + dest_x;
+    } else if (traffic == TORNADO_RING_) {
+        destination = (source + (int) ceil(num_destinations/2) -1)
+        % num_destinations;
     }
     else {
         fatal("Unknown Traffic Type: %s!\n", traffic);
@@ -334,6 +338,7 @@ GarnetSyntheticTraffic::initTrafficType()
     trafficStringToEnum["tornado"] = TORNADO_;
     trafficStringToEnum["transpose"] = TRANSPOSE_;
     trafficStringToEnum["uniform_random"] = UNIFORM_RANDOM_;
+    trafficStringToEnum["tornado_ring"] = TORNADO_RING_;
 }
 
 void

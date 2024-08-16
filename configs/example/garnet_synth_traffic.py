@@ -57,6 +57,7 @@ parser.add_argument(
         "neighbor",
         "shuffle",
         "transpose",
+        "tornado_ring",
     ],
 )
 
@@ -161,6 +162,7 @@ i = 0
 for ruby_port in system.ruby._cpu_ports:
     #
     # Tie the cpu test ports to the ruby cpu port
+    # cpu test port is request port, and ruby cpu port is response port
     #
     cpus[i].test = ruby_port.in_ports
     i += 1
@@ -173,7 +175,8 @@ root = Root(full_system=False, system=system)
 root.system.mem_mode = "timing"
 
 # Not much point in this being higher than the L1 latency
-m5.ticks.setGlobalFrequency("1ps")
+
+m5.ticks.setGlobalFrequency("2GHz")
 
 # instantiate configuration
 m5.instantiate()

@@ -299,6 +299,57 @@ class Count : public Base
     std::string getUnitString() const override { return Count::toString(); }
 };
 
+class Packet : public Base
+{
+  private:
+    Packet() {}
+  public:
+    Packet(Packet const&) = delete;
+    void operator=(Packet const&) = delete;
+    static Packet*
+    get()
+    {
+        static Packet instance;
+        return &instance;
+    }
+    static std::string toString() { return "Packet"; }
+    std::string getUnitString() const override { return Packet::toString(); }
+};
+
+class Flit : public Base
+{
+  private:
+    Flit() {}
+  public:
+    Flit(Flit const&) = delete;
+    void operator=(Flit const&) = delete;
+    static Flit*
+    get()
+    {
+        static Flit instance;
+        return &instance;
+    }
+    static std::string toString() { return "Flit"; }
+    std::string getUnitString() const override { return Flit::toString(); }
+};
+
+class Hop : public Base
+{
+  private:
+    Hop() {}
+  public:
+    Hop(Hop const&) = delete;
+    void operator=(Hop const&) = delete;
+    static Hop*
+    get()
+    {
+        static Hop instance;
+        return &instance;
+    }
+    static std::string toString() { return "Hop"; }
+    std::string getUnitString() const override { return Packet::toString(); }
+};
+
 class Ratio : public Base
 {
   private:

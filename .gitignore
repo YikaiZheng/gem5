@@ -32,3 +32,10 @@ configs/example/memcheck.cfg
 configs/dram/lowp_sweep.cfg
 .pyenv
 .vscode
+run_lab2.py
+run_lab3.py
+network_stats.txt
+network_stats1.txt
+network_stats2.txt
+network_stats3.txt
+lab2results

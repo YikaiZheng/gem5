@@ -193,6 +193,8 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
         // any custom algorithm
         case CUSTOM_: outport =
             outportComputeCustom(route, inport, inport_dirn); break;
+        case GREEDY_: outport =
+            outportComputeGreedy(route, inport, inport_dirn); break;
         default: outport =
             lookupRoutingTable(route.vnet, route.net_dest); break;
     }
@@ -260,6 +262,34 @@ RoutingUnit::outportComputeXY(RouteInfo route,
     return m_outports_dirn2idx[outport_dirn];
 }
 
+
+int
+RoutingUnit::outportComputeGreedy(RouteInfo route,
+                                 int inport,
+                                 PortDirection inport_dirn){
+    PortDirection outport_dirn = "Unknown";
+    int my_id = m_router->get_id();
+    int dest_id = route.dest_router;
+    int num_routers = m_router->get_net_ptr()->getNumRouters();
+    assert(!(my_id == dest_id));
+    int distance_east = 0;
+    int distance_west = 0;
+    if (my_id<dest_id){
+        distance_east = dest_id - my_id;
+        distance_west = my_id + num_routers - dest_id;
+    }
+    else {
+        distance_east = dest_id + num_routers - my_id;
+        distance_west = my_id - dest_id;
+    }
+    if (distance_east <= distance_west){
+        outport_dirn = "East";
+    }
+    else{
+        outport_dirn = "West";
+    }
+    return m_outports_dirn2idx[outport_dirn];
+}
 // Template for implementing custom routing algorithm
 // using port directions. (Example adaptive)
 int

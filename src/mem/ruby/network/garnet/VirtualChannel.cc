@@ -68,7 +68,7 @@ bool
 VirtualChannel::need_stage(flit_stage stage, Tick time)
 {
     if (inputBuffer.isReady(time)) {
-        assert(m_vc_state.first == ACTIVE_ && m_vc_state.second <= time);
+        // assert(m_vc_state.first == ACTIVE_ && m_vc_state.second <= time);
         flit *t_flit = inputBuffer.peekTopFlit();
         return(t_flit->is_stage(stage, time));
     }

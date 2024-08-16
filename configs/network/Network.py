@@ -95,7 +95,8 @@ def define_options(parser):
         help="""routing algorithm in network.
             0: weight-based table
             1: XY (for Mesh. see garnet/RoutingUnit.cc)
-            2: Custom (see garnet/RoutingUnit.cc""",
+            2: Custom (see garnet/RoutingUnit.cc
+            3: Greedy (for Ring. see garnet/RoutingUnit.cc)""",
     )
     parser.add_argument(
         "--network-fault-model",
@@ -117,6 +118,21 @@ def define_options(parser):
         default=False,
         help="""SimpleNetwork links uses a separate physical
             channel for each virtual network""",
+    )
+
+    parser.add_argument(
+        "--wormhole",
+        action="store_true",
+        default=False,
+        help="enable wormhole flow control",
+    )
+
+    parser.add_argument(
+        "--depth",
+        action="store",
+        type=int,
+        default=1,
+        help="number of flits in a control vc",
     )
 
 
@@ -169,6 +185,8 @@ def init_network(options, network, InterfaceClass):
         network.ni_flit_size = options.link_width_bits / 8
         network.routing_algorithm = options.routing_algorithm
         network.garnet_deadlock_threshold = options.garnet_deadlock_threshold
+        network.wormhole = options.wormhole
+        network.buffers_per_ctrl_vc = options.depth
 
         # Create Bridges and connect them to the corresponding links
         for intLink in network.int_links:
