@@ -30,6 +30,8 @@
 
 #include "mem/ruby/network/garnet/RoutingUnit.hh"
 
+#include <iostream>
+
 #include "base/cast.hh"
 #include "base/compiler.hh"
 #include "debug/RubyNetwork.hh"
@@ -144,6 +146,46 @@ RoutingUnit::lookupRoutingTable(int vnet, NetDest msg_destination)
     return output_link;
 }
 
+int RoutingUnit::computeAdaptiveRouting(int vnet, NetDest msg_destination){
+    int output_link = -1;
+    int max_free_vc = 0;
+    std::vector<int> output_link_candidates;
+    int num_candidates = 0;
+    std::vector<int> congestion_metric=m_router->get_congestion_metric(vnet);
+
+    for (int link = 0; link < m_routing_table[vnet].size(); link++) {
+        if (msg_destination.intersectionIsNotEmpty(
+            m_routing_table[vnet][link])) {
+
+        if (congestion_metric[link]>max_free_vc)
+            max_free_vc = congestion_metric[link];
+        }
+    }
+
+    // Collect all candidate output links with this minimum weight
+    for (int link = 0; link < m_routing_table[vnet].size(); link++) {
+        if (msg_destination.intersectionIsNotEmpty(
+            m_routing_table[vnet][link])) {
+
+            if (congestion_metric[link] == max_free_vc) {
+                num_candidates++;
+                output_link_candidates.push_back(link);
+            }
+        }
+    }
+    if (output_link_candidates.size() == 0) {
+        fatal("Fatal Error:: No Route exists from this Router.");
+        exit(0);
+    }
+
+    // Randomly select any candidate output link
+    int candidate = 0;
+    if (!(m_router->get_net_ptr())->isVNetOrdered(vnet))
+        candidate = rand() % num_candidates;
+
+    output_link = output_link_candidates.at(candidate);
+    return output_link;
+}
 
 void
 RoutingUnit::addInDirection(PortDirection inport_dirn, int inport_idx)
@@ -192,7 +234,7 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
             outportComputeXY(route, inport, inport_dirn); break;
         // any custom algorithm
         case CUSTOM_: outport =
-            outportComputeCustom(route, inport, inport_dirn); break;
+            computeAdaptiveRouting(route.vnet, route.net_dest); break;
         case GREEDY_: outport =
             outportComputeGreedy(route, inport, inport_dirn); break;
         default: outport =

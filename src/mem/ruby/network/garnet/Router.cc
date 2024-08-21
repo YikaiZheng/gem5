@@ -158,6 +158,16 @@ Router::getInportDirection(int inport)
     return m_input_unit[inport]->get_direction();
 }
 
+//used by adaptive routing
+std::vector<int>
+Router::get_congestion_metric(int vnet){
+    std::vector<int> congestion_metric;
+    for (size_t i=0; i<m_output_unit.size(); i++){
+        congestion_metric.push_back(m_output_unit[i]->num_free_vc(vnet));
+    }
+    return congestion_metric;
+}
+
 int
 Router::route_compute(RouteInfo route, int inport, PortDirection inport_dirn)
 {

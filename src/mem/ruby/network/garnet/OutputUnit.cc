@@ -115,6 +115,19 @@ OutputUnit::has_free_vc(int vnet)
     return false;
 }
 
+int
+OutputUnit::num_free_vc(int vnet)
+{
+    int vc_base = vnet*m_vc_per_vnet;
+    int num = 0;
+    for (int vc = vc_base; vc < vc_base + m_vc_per_vnet; vc++) {
+        if (is_vc_idle(vc, curTick())){
+            num++;
+        }
+    }
+    return num;
+}
+
 // Assign a free output VC to the winner of Switch Allocation
 //TODO: modify the check for free vc
 
