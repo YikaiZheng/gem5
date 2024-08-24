@@ -303,7 +303,7 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
     auto output_unit = m_router->getOutputUnit(outport);
     // Escape VC
     auto input_unit = m_router->getInputUnit(inport);
-    PortDirection outport_dirn = output_unit->get_direction();
+    bool escape_vc_available = input_unit->get_escape_vc_available(invc);
     RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
 
     if (!has_outvc) {
@@ -314,7 +314,7 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
 
         // if (output_unit->has_free_vc(vnet)) {
         // Escape VC
-        if (output_unit->has_free_vc(vnet, outport_dirn, route)) { 
+        if (output_unit->has_free_vc(vnet, escape_vc_available, route)) { 
 
             has_outvc = true;
 
@@ -341,11 +341,16 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
         // check if any other flit is ready for SA and for same output port
         // and was enqueued before this flit
         int vc_base = vnet*m_vc_per_vnet;
+
+        // Escape VC
+        bool m_escape_vc_available = input_unit->get_escape_vc_available(invc);
+
         for (int vc_offset = 0; vc_offset < m_vc_per_vnet; vc_offset++) {
             int temp_vc = vc_base + vc_offset;
             if (input_unit->need_stage(temp_vc, SA_, curTick()) &&
                (input_unit->get_outport(temp_vc) == outport) &&
-               (input_unit->get_enqueue_time(temp_vc) < t_enqueue_time)) {
+               (input_unit->get_enqueue_time(temp_vc) < t_enqueue_time) &&
+               (input_unit->get_escape_vc_available(temp_vc) >= m_escape_vc_available)) {
                 return false;
             }
         }
@@ -359,15 +364,16 @@ int
 SwitchAllocator::vc_allocate(int outport, int inport, int invc)
 {
     // Escape VC
-    PortDirection outport_dirn = m_router->getOutportDirection(outport);
-    RouteInfo route = m_router->getInputUnit(inport)->peekTopFlit(invc)->get_route();
+    auto input_unit = m_router->getInputUnit(inport);
+    bool escape_vc_available = input_unit->get_escape_vc_available(invc);
+    RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
 
     // Select a free VC from the output port
     // int outvc =
     //     m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc));
     // Escape VC
     int outvc =
-        m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc), outport_dirn, route);
+        m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc), escape_vc_available, route);
 
     // has to get a valid VC since it checked before performing SA
     assert(outvc != -1);

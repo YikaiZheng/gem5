@@ -99,6 +99,19 @@ class InputUnit : public Consumer
         return virtualChannels[invc].get_outvc();
     }
 
+    // Escape VC
+    inline void
+    grant_escape_vc_available(int vc, bool available)
+    {
+        virtualChannels[vc].set_escape_vc_available(available);
+    }
+
+    inline bool
+    get_escape_vc_available(int invc)
+    {
+        return virtualChannels[invc].get_escape_vc_available();
+    }
+
     inline Tick
     get_enqueue_time(int invc)
     {

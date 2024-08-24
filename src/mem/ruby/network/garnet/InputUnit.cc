@@ -106,6 +106,26 @@ InputUnit::wakeup()
             // All flits in this packet will use this output port
             // The output port field in the flit is updated after it wins SA
             grant_outport(vc, outport);
+            // Escape VC
+            bool m_escape_vc_available = false;
+            RoutingAlgorithm routing_algorithm =
+                (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
+            if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_){
+                int num_routers = m_router->get_net_ptr()->getNumRouters();
+                int my_id = m_router->get_id();
+                int src_id = t_flit->get_route().src_router;
+                int dest_id = t_flit->get_route().dest_router;
+                PortDirection outport_dirn = m_router->getOutportDirection(outport);
+                // East-traffic
+                if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers > num_routers/2) || outport_dirn == "East")
+                    if (my_id < src_id || my_id == 0 || src_id == 0)
+                        m_escape_vc_available = true;
+                // West-traffic
+                if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers < num_routers/2) || outport_dirn == "West")
+                    if (my_id > src_id || my_id == 0 || src_id == 0)
+                        m_escape_vc_available = true;
+            }
+            grant_escape_vc_available(vc, m_escape_vc_available);
 
         } else {
             if (!m_router->get_wormhole_enabled()){
