@@ -96,7 +96,9 @@ def define_options(parser):
             0: weight-based table
             1: XY (for Mesh. see garnet/RoutingUnit.cc)
             2: Custom (see garnet/RoutingUnit.cc
-            3: Greedy (for Ring. see garnet/RoutingUnit.cc)""",
+            3: Greedy (for Ring. see garnet/RoutingUnit.cc)
+            4: Escape_VC (for Ring and Spidergon. see garnet/RoutingUnit.cc)
+            5: Escape_VC_adaptive (for Ring and Spidergon. see garnet/RoutingUnit.cc)""",
     )
     parser.add_argument(
         "--network-fault-model",

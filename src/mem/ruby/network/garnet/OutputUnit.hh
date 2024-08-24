@@ -70,6 +70,9 @@ class OutputUnit : public Consumer
     bool has_free_vc(int vnet);
     int num_free_vc(int vnet);
     int select_free_vc(int vnet);
+    // Escape VC
+    bool has_free_vc(int vnet, PortDirection outport_dirn, RouteInfo route);
+    int select_free_vc(int vnet, PortDirection outport_dirn, RouteInfo route);
 
     inline PortDirection get_direction() { return m_direction; }
 

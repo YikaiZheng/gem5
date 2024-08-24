@@ -115,6 +115,45 @@ OutputUnit::has_free_vc(int vnet)
     return false;
 }
 
+// Escape VC
+bool
+OutputUnit::has_free_vc(int vnet, PortDirection outport_dirn, RouteInfo route)
+{
+    RoutingAlgorithm routing_algorithm =
+        (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
+
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_){
+        int vc_base = vnet*m_vc_per_vnet;
+        int num_routers = m_router->get_net_ptr()->getNumRouters();
+        int my_id = m_router->get_id();
+        int src_id = route.src_router;
+        int dest_id = route.dest_router;
+        bool use_escape_vc = false;
+        // East-traffic
+        if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers > num_routers/2) || outport_dirn == "East")
+            if (my_id < src_id)
+                use_escape_vc = true;
+        // West-traffic
+        if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers < num_routers/2) || outport_dirn == "West")
+            if (my_id > src_id)
+                use_escape_vc = true;
+
+        for (int vc = use_escape_vc ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
+            if (m_router->get_wormhole_enabled()){
+                if (outVcState[vc].has_credit()){
+                    return true;
+                }
+            }
+            else{
+                if (is_vc_idle(vc, curTick()))
+                    return true;
+            }
+        }
+        return false;
+    }
+    return OutputUnit::has_free_vc(vnet);
+}
+
 int
 OutputUnit::num_free_vc(int vnet)
 {
@@ -150,6 +189,46 @@ OutputUnit::select_free_vc(int vnet)
     }
 
     return -1;
+}
+
+int
+OutputUnit::select_free_vc(int vnet, PortDirection outport_dirn, RouteInfo route)
+{
+    RoutingAlgorithm routing_algorithm =
+        (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
+
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_){
+        int vc_base = vnet*m_vc_per_vnet;
+        int num_routers = m_router->get_net_ptr()->getNumRouters();
+        int my_id = m_router->get_id();
+        int src_id = route.src_router;
+        int dest_id = route.dest_router;
+        bool use_escape_vc = false;
+        // East-traffic
+        if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers > num_routers/2) || outport_dirn == "East")
+            if (my_id < src_id)
+                use_escape_vc = true;
+        // West-traffic
+        if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers < num_routers/2) || outport_dirn == "West")
+            if (my_id > src_id)
+                use_escape_vc = true;
+
+        for (int vc = use_escape_vc ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
+            if (m_router->get_wormhole_enabled()){
+                if (outVcState[vc].has_credit()){
+                    return vc;
+                }
+            }
+            else{
+                if (is_vc_idle(vc, curTick())) {
+                    outVcState[vc].setState(ACTIVE_, curTick());
+                    return vc;
+                }
+            }
+        }
+        return -1;
+    }
+    return OutputUnit::select_free_vc(vnet);
 }
 
 /*

@@ -227,6 +227,13 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
     RoutingAlgorithm routing_algorithm =
         (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
 
+    // override here based on the VC
+    // this override the choice of routing algorithm as well
+    if (routing_algorithm == ESCAPE_VC_)
+        routing_algorithm = TABLE_;
+    if (routing_algorithm == ESCAPE_VC_ADAPTIVE_)
+        routing_algorithm = CUSTOM_;
+
     switch (routing_algorithm) {
         case TABLE_:  outport =
             lookupRoutingTable(route.vnet, route.net_dest); break;

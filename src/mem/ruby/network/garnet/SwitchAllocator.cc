@@ -301,13 +301,20 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
     bool has_credit = false;
 
     auto output_unit = m_router->getOutputUnit(outport);
+    // Escape VC
+    auto input_unit = m_router->getInputUnit(inport);
+    PortDirection outport_dirn = output_unit->get_direction();
+    RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
+
     if (!has_outvc) {
 
         // needs outvc
         // this is only true for HEAD and HEAD_TAIL flits.
         // ! here we always need outvc
 
-        if (output_unit->has_free_vc(vnet)) {
+        // if (output_unit->has_free_vc(vnet)) {
+        // Escape VC
+        if (output_unit->has_free_vc(vnet, outport_dirn, route)) { 
 
             has_outvc = true;
 
@@ -351,9 +358,16 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
 int
 SwitchAllocator::vc_allocate(int outport, int inport, int invc)
 {
+    // Escape VC
+    PortDirection outport_dirn = m_router->getOutportDirection(outport);
+    RouteInfo route = m_router->getInputUnit(inport)->peekTopFlit(invc)->get_route();
+
     // Select a free VC from the output port
+    // int outvc =
+    //     m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc));
+    // Escape VC
     int outvc =
-        m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc));
+        m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc), outport_dirn, route);
 
     // has to get a valid VC since it checked before performing SA
     assert(outvc != -1);
