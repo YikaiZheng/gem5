@@ -229,7 +229,7 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
 
     // override here based on the VC
     // this override the choice of routing algorithm as well
-    if (routing_algorithm == ESCAPE_VC_)
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == BUBBLE_RING_)
         routing_algorithm = TABLE_;
     if (routing_algorithm == ESCAPE_VC_ADAPTIVE_)
         routing_algorithm = CUSTOM_;

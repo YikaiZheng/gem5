@@ -113,9 +113,13 @@ Network::Network(const Params &p)
 
     m_ordered.resize(m_virtual_networks);
     m_vnet_type_names.resize(m_virtual_networks);
+    // m_num_bubbles_east.resize(m_virtual_networks);
+    // m_num_bubbles_west.resize(m_virtual_networks);
 
     for (int i = 0; i < m_virtual_networks; i++) {
         m_ordered[i] = false;
+        // m_num_bubbles_east[i] = 0;
+        // m_num_bubbles_west[i] = 0;
     }
 
     // Initialize the controller's network pointers

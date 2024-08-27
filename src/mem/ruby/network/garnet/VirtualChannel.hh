@@ -62,6 +62,9 @@ class VirtualChannel
     // Escape VC
     void set_escape_vc_available(bool available) { m_escape_vc_available = available; }
     inline bool get_escape_vc_available()        { return m_escape_vc_available; }
+    // // Bubble
+    // void set_bubble_needed(bool bubble_needed) { m_bubble_needed = bubble_needed; }
+    // inline bool get_bubble_needed()      { return m_bubble_needed; }
 
     inline Tick get_enqueue_time()          { return m_enqueue_time; }
     inline void set_enqueue_time(Tick time) { m_enqueue_time = time; }
@@ -109,6 +112,8 @@ class VirtualChannel
     int m_output_vc;
     // Escape VC
     bool m_escape_vc_available;
+    // // Bubble
+    // bool m_bubble_needed;
 };
 
 } // namespace garnet

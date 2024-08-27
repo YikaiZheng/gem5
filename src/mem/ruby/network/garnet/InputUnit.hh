@@ -112,6 +112,19 @@ class InputUnit : public Consumer
         return virtualChannels[invc].get_escape_vc_available();
     }
 
+    // // Bubble
+    // inline void
+    // grant_bubble_needed(int vc, bool bubble_needed)
+    // {
+    //     virtualChannels[vc].set_bubble_needed(bubble_needed);
+    // }
+
+    // inline bool
+    // get_bubble_needed(int invc)
+    // {
+    //     return virtualChannels[invc].get_bubble_needed();
+    // }
+
     inline Tick
     get_enqueue_time(int invc)
     {

@@ -383,6 +383,66 @@ GarnetNetwork::get_router_id(int global_ni, int vnet)
     return m_nis[local_ni]->get_router_id(vnet);
 }
 
+// // Bubble flow control
+// void
+// GarnetNetwork::setNumBubbles(int vnet)
+// {
+//     assert(m_num_bubbles_east[vnet] == 0 && m_num_bubbles_west[vnet] == 0);
+//     int max_num_bubbles = getNumRouters() * m_buffers_per_ctrl_vc * m_max_vcs_per_vnet;
+//     m_num_bubbles_east[vnet] = max_num_bubbles;
+//     m_num_bubbles_west[vnet] = max_num_bubbles;
+// }
+
+// bool
+// GarnetNetwork::isBubbleAllowedEast(int vnet)
+// {
+//     if(m_num_bubbles_east[vnet] == 0)
+//         setNumBubbles(vnet);
+//     return (m_num_bubbles_east[vnet] > 1);
+// }
+
+// bool
+// GarnetNetwork::isBubbleAllowedWest(int vnet)
+// {
+//     if(m_num_bubbles_west[vnet] == 0)
+//         setNumBubbles(vnet);
+//     return (m_num_bubbles_west[vnet] > 1);
+// }
+
+// void
+// GarnetNetwork::incrementEastBubble(int vnet)
+// {
+//     if(m_num_bubbles_east[vnet] == 0)
+//         setNumBubbles(vnet);
+//     m_num_bubbles_east[vnet]++;
+// }
+
+// void
+// GarnetNetwork::incrementWestBubble(int vnet)
+// {
+//     if(m_num_bubbles_west[vnet] == 0)
+//         setNumBubbles(vnet);
+//     m_num_bubbles_west[vnet]++;
+// }
+
+// void
+// GarnetNetwork::decrementEastBubble(int vnet)
+// {
+//     if(m_num_bubbles_east[vnet] == 0)
+//         setNumBubbles(vnet);
+//     assert(m_num_bubbles_east[vnet] > 1);
+//     m_num_bubbles_east[vnet]--;
+// }
+
+// void
+// GarnetNetwork::decrementWestBubble(int vnet)
+// {
+//     if(m_num_bubbles_west[vnet] == 0)
+//         setNumBubbles(vnet);
+//     assert(m_num_bubbles_west[vnet] > 1);
+//     m_num_bubbles_west[vnet]--;
+// }
+
 void
 GarnetNetwork::regStats()
 {
