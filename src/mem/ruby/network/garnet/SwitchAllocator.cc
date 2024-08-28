@@ -225,17 +225,15 @@ SwitchAllocator::arbitrate_outports()
                 // printf("compute bubble\n");
                 int vnet = get_vnet(invc);
                 bool m_bubble_needed = input_unit->get_bubble_needed(invc);
+                PortDirection outport_dirn = m_router->getOutportDirection(outport);
                 if (m_bubble_needed){
-                    PortDirection outport_dirn = m_router->getOutportDirection(outport);
                     if (outport_dirn == "East"){
                         assert(m_router->get_net_ptr()->isBubbleAllowedEast(vnet) == true);
                         m_router->get_net_ptr()->decrementEastBubble(vnet);
-                        // printf("decrementEastBubble\n");
                     }
                     if (outport_dirn == "West"){
                         assert(m_router->get_net_ptr()->isBubbleAllowedWest(vnet) == true);
                         m_router->get_net_ptr()->decrementWestBubble(vnet);
-                        // printf("decrementWestBubble\n");
                     }
                 }
                 // printf("decrease bubble done\n");
@@ -243,38 +241,21 @@ SwitchAllocator::arbitrate_outports()
 
                 RoutingAlgorithm routing_algorithm =
                             (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
-                if (routing_algorithm == BUBBLE_RING_){
+                if (routing_algorithm == BUBBLE_RING_ || routing_algorithm == BUBBLE_AFIRST_ || routing_algorithm == BUBBLE_ALAST_){
                     int my_id = m_router->get_id();
+                    // int src_id = t_flit->get_route().src_router;
                     int dest_id = t_flit->get_route().dest_router;
-                    int src_id = t_flit->get_route().src_router;
                     if (input_unit->get_bubble_needed(invc)){
-                        // printf("Get Bubble for my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
                     }
-                    // printf("my_id: %d, dest_id: %d\n", my_id, dest_id);
-                    // fflush(stdout);
-                    if (my_id == dest_id && my_id != src_id){
-                        PortDirection outport_dirn = m_router->getOutportDirection(outport);
-                        // if (outport_dirn == "East"){
-                        //     printf("Outport East my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
-                        // }
-                        // if (outport_dirn == "West"){
-                        //     printf("Outport West my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
-                        // }
+                    if (my_id == dest_id || (routing_algorithm == BUBBLE_ALAST_ && outport_dirn == "Across")){    
                         PortDirection inport_dirn = m_router->getInportDirection(inport);
-                        if (inport_dirn == "East"){
-                            m_router->get_net_ptr()->incrementWestBubble(vnet);
-                            // printf("incrementWestBubble for my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
-                        }
-                        if (inport_dirn == "West"){
+                        if (inport_dirn == "East")
+                            m_router->get_net_ptr()->incrementWestBubble(vnet);                         
+                        if (inport_dirn == "West")
                             m_router->get_net_ptr()->incrementEastBubble(vnet);
-                            // printf("incrementEastBubble for my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
-                        }
                     }
                 }
-
-                // printf("compute bubble done\n");
-                // fflush(stdout);
-
+                
                 // flit ready for Switch Traversal
                 t_flit->advance_stage(ST_, curTick());
                 m_router->grant_switch(inport, t_flit);
@@ -387,9 +368,9 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
 
     bool m_bubble_needed = input_unit->get_bubble_needed(invc);
     // for debug
-    int my_id = m_router->get_id();
-    int src_id = input_unit->peekTopFlit(invc)->get_route().src_router;
-    int dest_id = input_unit->peekTopFlit(invc)->get_route().dest_router;
+    // int my_id = m_router->get_id();
+    // int src_id = input_unit->peekTopFlit(invc)->get_route().src_router;
+    // int dest_id = input_unit->peekTopFlit(invc)->get_route().dest_router;
     // printf("vnet: %d, my_id: %d, src_id: %d, dest_id: %d, has_outvc: %d, has_credit: %d, escape_vc_available: %d, bubble_needed: %d\n", vnet, my_id, src_id, dest_id, has_outvc, has_credit, escape_vc_available, m_bubble_needed);
     // cannot send if no outvc or no credit.
     if (!has_outvc || !has_credit)
@@ -439,7 +420,7 @@ int
 SwitchAllocator::vc_allocate(int outport, int inport, int invc)
 {
     // Escape VC
-    int vnet = get_vnet(invc);
+    // int vnet = get_vnet(invc);
     auto input_unit = m_router->getInputUnit(inport);
     bool escape_vc_available = input_unit->get_escape_vc_available(invc);
     RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
@@ -450,38 +431,6 @@ SwitchAllocator::vc_allocate(int outport, int inport, int invc)
     // Escape VC
     int outvc =
         m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc), escape_vc_available, route);
-    // bool m_bubble_needed = input_unit->get_bubble_needed(invc);
-    // if (m_bubble_needed){
-    //     PortDirection outport_dirn = m_router->getOutportDirection(outport);
-    //     if (outport_dirn == "East"){
-    //         assert(m_router->get_net_ptr()->isBubbleAllowedEast(vnet) == true);
-    //         m_router->get_net_ptr()->decrementEastBubble(vnet);
-    //         // printf("decrementEastBubble\n");
-    //     }
-    //     if (outport_dirn == "West"){
-    //         assert(m_router->get_net_ptr()->isBubbleAllowedWest(vnet) == true);
-    //         m_router->get_net_ptr()->decrementWestBubble(vnet);
-    //         // printf("decrementWestBubble\n");
-    //     }
-    // }
-
-    // RoutingAlgorithm routing_algorithm =
-    //             (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
-    // if (routing_algorithm == BUBBLE_RING_){
-    //     int my_id = m_router->get_id();
-    //     int dest_id = input_unit->peekTopFlit(invc)->get_route().dest_router;
-    //     if (my_id == dest_id){
-    //         PortDirection inport_dirn = m_router->getInportDirection(inport);
-    //         if (inport_dirn == "East"){
-    //             m_router->get_net_ptr()->incrementWestBubble(vnet);
-    //             // printf("incrementWestBubble\n");
-    //         }
-    //         if (inport_dirn == "West"){
-    //             m_router->get_net_ptr()->incrementEastBubble(vnet);
-    //             // printf("incrementEastBubble\n");
-    //         }
-    //     }
-    // }
 
     // has to get a valid VC since it checked before performing SA
     assert(outvc != -1);

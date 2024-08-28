@@ -231,12 +231,12 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
 
     // override here based on the VC
     // this override the choice of routing algorithm as well
-    if (routing_algorithm == ESCAPE_VC_)
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == BUBBLE_RING_ || routing_algorithm == BUBBLE_AFIRST_ || routing_algorithm == BUBBLE_ALAST_)
         routing_algorithm = TABLE_;
     if (routing_algorithm == ESCAPE_VC_ADAPTIVE_)
         routing_algorithm = CUSTOM_;
-    if (routing_algorithm == BUBBLE_RING_)
-        routing_algorithm = GREEDY_;
+    // if (routing_algorithm == BUBBLE_RING_)
+    //     routing_algorithm = GREEDY_;
 
     switch (routing_algorithm) {
         case TABLE_:  outport =

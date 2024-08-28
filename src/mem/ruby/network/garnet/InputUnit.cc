@@ -85,9 +85,9 @@ InputUnit::wakeup()
         DPRINTF(RubyNetwork, "Router[%d] Consuming:%s Width: %d Flit:%s\n",
         m_router->get_id(), m_in_link->name(),
         m_router->getBitWidth(), *t_flit);
-        int my_id = m_router->get_id();
-        int src_id = t_flit->get_route().src_router;
-        int dest_id = t_flit->get_route().dest_router;
+        // int my_id = m_router->get_id();
+        // int src_id = t_flit->get_route().src_router;
+        // int dest_id = t_flit->get_route().dest_router;
         // printf("Consume flit from my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
         assert(t_flit->m_width == m_router->getBitWidth());
 
@@ -103,19 +103,10 @@ InputUnit::wakeup()
             }
 
             // Route computation for this vc
-            int my_id = m_router->get_id();
-            int src_id = t_flit->get_route().src_router;
-            int dest_id = t_flit->get_route().dest_router;
-            // printf("computa route for my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
+
             int outport = m_router->route_compute(t_flit->get_route(),
                 m_id, m_direction);
             PortDirection outport_dirn = m_router->getOutportDirection(outport);
-            // if (outport_dirn == "East"){
-            //     printf("Outport East my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
-            // }
-            // if (outport_dirn == "West"){
-            //     printf("Outport West my_id: %d, src_id: %d, dest_id: %d\n", my_id, src_id, dest_id);
-            // }
 
             // Update output port in VC
             // All flits in this packet will use this output port
@@ -150,6 +141,16 @@ InputUnit::wakeup()
                 int my_id = m_router->get_id();
                 int src_id = t_flit->get_route().src_router;
                 m_bubble_needed = (my_id == src_id);
+            }  
+            if (routing_algorithm == BUBBLE_AFIRST_){
+                int my_id = m_router->get_id();
+                int src_id = t_flit->get_route().src_router;
+                m_bubble_needed = ((my_id == src_id) && outport_dirn != "Across") || (m_direction == "Across" && outport_dirn != "Local");
+            }
+            if (routing_algorithm == BUBBLE_ALAST_){
+                int my_id = m_router->get_id();
+                int src_id = t_flit->get_route().src_router;
+                m_bubble_needed = (my_id == src_id) && outport_dirn != "Across";
             }
 
             grant_escape_vc_available(vc, m_escape_vc_available);
