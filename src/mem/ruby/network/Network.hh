@@ -163,10 +163,12 @@ class Network : public ClockedObject
     std::vector<std::vector<MessageBuffer*> > m_toNetQueues;
     std::vector<std::vector<MessageBuffer*> > m_fromNetQueues;
     std::vector<bool> m_ordered;
-    
+
+    int m_max_num_bubbles;
+    int m_min_num_bubbles;
     // vector of bubbles
-    // std::vector<int> m_num_bubbles_east;
-    // std::vector<int> m_num_bubbles_west;
+    std::vector<int> m_num_bubbles_east;
+    std::vector<int> m_num_bubbles_west;
 
   private:
     // Global address map

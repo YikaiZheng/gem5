@@ -96,14 +96,14 @@ class GarnetNetwork : public Network
     int getNumRouters();
     int get_router_id(int ni, int vnet);
 
-    // // Bubble flow control
-    // void setNumBubbles(int vnet);
-    // bool isBubbleAllowedEast(int vnet);
-    // bool isBubbleAllowedWest(int vnet);
-    // void incrementEastBubble(int vnet);
-    // void incrementWestBubble(int vnet);
-    // void decrementEastBubble(int vnet);
-    // void decrementWestBubble(int vnet);
+    // Bubble flow control
+    void setNumBubbles(int vnet);
+    bool isBubbleAllowedEast(int vnet);
+    bool isBubbleAllowedWest(int vnet);
+    void incrementEastBubble(int vnet);
+    void incrementWestBubble(int vnet);
+    void decrementEastBubble(int vnet);
+    void decrementWestBubble(int vnet);
 
     // Methods used by Topology to setup the network
     void makeExtOutLink(SwitchID src, NodeID dest, BasicLink* link,

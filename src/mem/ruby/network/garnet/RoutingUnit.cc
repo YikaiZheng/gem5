@@ -219,6 +219,8 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
         // all with output port direction = "Local"
         // Get exact outport id from table
         outport = lookupRoutingTable(route.vnet, route.net_dest);
+        PortDirection outport_dirn = m_router->getOutportDirection(outport);
+        assert(outport_dirn == "Local");
         return outport;
     }
 
@@ -229,10 +231,12 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
 
     // override here based on the VC
     // this override the choice of routing algorithm as well
-    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == BUBBLE_RING_)
+    if (routing_algorithm == ESCAPE_VC_)
         routing_algorithm = TABLE_;
     if (routing_algorithm == ESCAPE_VC_ADAPTIVE_)
         routing_algorithm = CUSTOM_;
+    if (routing_algorithm == BUBBLE_RING_)
+        routing_algorithm = GREEDY_;
 
     switch (routing_algorithm) {
         case TABLE_:  outport =
