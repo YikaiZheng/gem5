@@ -250,6 +250,8 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
             outportComputeGreedy(route, inport, inport_dirn); break;
         case ESCAPE_VC_DOUBLE_: outport =
             doubleOutportCompute(route, inport, inport_dirn); break;
+        case BUBBLE_DOUBLE_: outport =
+            doubleOutportCompute(route, inport, inport_dirn); break;
         default: outport =
             lookupRoutingTable(route.vnet, route.net_dest); break;
     }
@@ -262,7 +264,7 @@ int RoutingUnit::outportCompute_2(RouteInfo route, int inport, PortDirection inp
     RoutingAlgorithm routing_algorithm =
         (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
     int outport = -1;
-    if (routing_algorithm == ESCAPE_VC_DOUBLE_)
+    if (routing_algorithm == ESCAPE_VC_DOUBLE_ || routing_algorithm == BUBBLE_DOUBLE_)
     {
         outport = doubleOutportCompute_2(route, inport, inport_dirn);
     }

@@ -55,7 +55,7 @@ enum RoutingAlgorithm
     TABLE_ = 0, XY_ = 1, CUSTOM_ = 2, GREEDY_ = 3,
                         ESCAPE_VC_ = 4, ESCAPE_VC_ADAPTIVE_ = 5,
                         BUBBLE_RING_ = 6, BUBBLE_AFIRST_ = 7, BUBBLE_ALAST_ = 8,
-                        ESCAPE_VC_DOUBLE_ = 9, BUBBLE_DOUBLE_= 10,
+                        ESCAPE_VC_DOUBLE_ = 9, BUBBLE_DOUBLE_ = 10,
                         NUM_ROUTING_ALGORITHM_};
 
 struct RouteInfo

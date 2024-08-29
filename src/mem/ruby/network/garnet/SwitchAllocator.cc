@@ -164,11 +164,13 @@ SwitchAllocator::arbitrate_inports()
                     if (make_request && make_request_2) {
                         auto output_unit = m_router->getOutputUnit(outport);
                         auto output_unit_2 = m_router->getOutputUnit(outport_2);
+                        PortDirection outport_dirn = m_router->getOutportDirection(outport);
+                        PortDirection outport_dirn_2 = m_router->getOutportDirection(outport_2);
                         int vnet = get_vnet(invc);
                         bool escape_vc_available = input_unit->get_escape_vc_available(invc);
                         RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
-                        int num_free_vc = output_unit->count_free_vc(vnet, escape_vc_available, route);
-                        int num_free_vc_2 = output_unit_2->count_free_vc(vnet, escape_vc_available, route);
+                        int num_free_vc = output_unit->count_free_vc(vnet, escape_vc_available, outport_dirn, route);
+                        int num_free_vc_2 = output_unit_2->count_free_vc(vnet, escape_vc_available, outport_dirn_2, route);
                         if (num_free_vc > num_free_vc_2){
                             m_input_arbiter_activity++;
                             m_port_requests[inport] = outport;
@@ -300,13 +302,15 @@ SwitchAllocator::arbitrate_outports()
 
                 RoutingAlgorithm routing_algorithm =
                             (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
-                if (routing_algorithm == BUBBLE_RING_ || routing_algorithm == BUBBLE_AFIRST_ || routing_algorithm == BUBBLE_ALAST_){
+                if (routing_algorithm == BUBBLE_RING_ || routing_algorithm == BUBBLE_AFIRST_ || routing_algorithm == BUBBLE_ALAST_ || routing_algorithm == BUBBLE_DOUBLE_){
+                    int num_routers = m_router->get_net_ptr()->getNumRouters();
                     int my_id = m_router->get_id();
                     // int src_id = t_flit->get_route().src_router;
                     int dest_id = t_flit->get_route().dest_router;
+                    int opposite_id = (my_id + num_routers/2) % num_routers;
                     if (input_unit->get_bubble_needed(invc)){
                     }
-                    if (my_id == dest_id || (routing_algorithm == BUBBLE_ALAST_ && outport_dirn == "Across")){    
+                    if (my_id == dest_id || (routing_algorithm == BUBBLE_ALAST_ && outport_dirn == "Across") || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across" && opposite_id == dest_id)){    
                         PortDirection inport_dirn = m_router->getInportDirection(inport);
                         if (inport_dirn == "East")
                             m_router->get_net_ptr()->incrementWestBubble(vnet);                         
@@ -404,6 +408,7 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
     auto input_unit = m_router->getInputUnit(inport);
     bool escape_vc_available = input_unit->get_escape_vc_available(invc);
     RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
+    PortDirection outport_dirn = m_router->getOutportDirection(outport);
 
     if (!has_outvc) {
 
@@ -413,7 +418,7 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
 
         // if (output_unit->has_free_vc(vnet)) {
         // Escape VC
-        if (output_unit->has_free_vc(vnet, escape_vc_available, route)) {
+        if (output_unit->has_free_vc(vnet, escape_vc_available, outport_dirn, route)) {
 
             has_outvc = true;
 
@@ -466,7 +471,7 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
                (input_unit->get_escape_vc_available(temp_vc) >= m_escape_vc_available) &&
                (input_unit->get_bubble_needed(temp_vc) <= m_bubble_needed)
                ) {
-                return false;
+                // return false;
             }
         }
     }
@@ -483,13 +488,14 @@ SwitchAllocator::vc_allocate(int outport, int inport, int invc)
     auto input_unit = m_router->getInputUnit(inport);
     bool escape_vc_available = input_unit->get_escape_vc_available(invc);
     RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
+    PortDirection outport_dirn = m_router->getOutportDirection(outport);
 
     // Select a free VC from the output port
     // int outvc =
     //     m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc));
     // Escape VC
     int outvc =
-        m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc), escape_vc_available, route);
+        m_router->getOutputUnit(outport)->select_free_vc(get_vnet(invc), escape_vc_available, outport_dirn, route);
 
     // has to get a valid VC since it checked before performing SA
     assert(outvc != -1);

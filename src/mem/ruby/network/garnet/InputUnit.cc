@@ -163,6 +163,16 @@ InputUnit::wakeup()
                 m_bubble_needed = (my_id == src_id) && outport_dirn != "Across";
             }
 
+            if (routing_algorithm == BUBBLE_DOUBLE_){
+                int num_routers = m_router->get_net_ptr()->getNumRouters();
+                int my_id = m_router->get_id();
+                int src_id = t_flit->get_route().src_router;
+                int dest_id = t_flit->get_route().dest_router;
+                int opposite_id = (my_id + num_routers/2) % num_routers;
+                m_bubble_needed = (my_id == src_id) || (opposite_id == src_id);
+                m_escape_vc_available = (opposite_id == dest_id);
+            }
+
             grant_escape_vc_available(vc, m_escape_vc_available);
             grant_bubble_needed(vc, m_bubble_needed);
 

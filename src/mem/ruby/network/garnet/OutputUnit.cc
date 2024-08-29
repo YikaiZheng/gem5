@@ -136,12 +136,12 @@ OutputUnit::count_free_vc(int vnet)
 
 // Escape VC
 bool
-OutputUnit::has_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
+OutputUnit::has_free_vc(int vnet, bool escape_vc_available, PortDirection outport_dirn, RouteInfo route)
 {
     RoutingAlgorithm routing_algorithm =
         (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
 
-    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_){
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_ || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across")){
         int vc_base = vnet*m_vc_per_vnet;
         for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
             if (m_router->get_wormhole_enabled()){
@@ -160,13 +160,13 @@ OutputUnit::has_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
 }
 
 int
-OutputUnit::count_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
+OutputUnit::count_free_vc(int vnet, bool escape_vc_available, PortDirection outport_dirn, RouteInfo route)
 {
     RoutingAlgorithm routing_algorithm =
         (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
     int num = 0;
 
-    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_){
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_ || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across")){
         int vc_base = vnet*m_vc_per_vnet;
         for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
             if (m_router->get_wormhole_enabled()){
@@ -222,12 +222,12 @@ OutputUnit::select_free_vc(int vnet)
 }
 
 int
-OutputUnit::select_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
+OutputUnit::select_free_vc(int vnet, bool escape_vc_available, PortDirection outport_dirn, RouteInfo route)
 {
     RoutingAlgorithm routing_algorithm =
         (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
 
-    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_){
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_ || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across")){
         int vc_base = vnet*m_vc_per_vnet;
         for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
             if (m_router->get_wormhole_enabled()){
