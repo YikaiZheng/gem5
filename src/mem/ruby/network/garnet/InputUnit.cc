@@ -130,13 +130,20 @@ InputUnit::wakeup()
                 int src_id = t_flit->get_route().src_router;
                 int dest_id = t_flit->get_route().dest_router;
                 PortDirection outport_dirn = m_router->getOutportDirection(outport);
+                int next_id = -1;
+                if (outport_dirn == "Across")
+                    next_id = (my_id + num_routers/2) % num_routers;
+                if (outport_dirn == "East")
+                    next_id = (my_id + 1) % num_routers;
+                if (outport_dirn == "West")
+                    next_id = (my_id - 1 + num_routers) % num_routers;
                 // East-traffic
                 if ((outport_dirn == "Across" && (dest_id - src_id + num_routers) % num_routers > num_routers/2) || outport_dirn == "East")
-                    if (my_id < src_id || my_id == 0 || src_id == 0)
+                    if (next_id < src_id) // || my_id == 0 || src_id == 0)
                         m_escape_vc_available = true;
                 // West-traffic
                 if ((outport_dirn == "Across" && (dest_id - src_id + num_routers) % num_routers < num_routers/2) || outport_dirn == "West")
-                    if (my_id > src_id || my_id == num_routers - 1 || src_id == num_routers - 1)
+                    if (next_id > src_id) // || my_id == num_routers - 1 || src_id == num_routers - 1)
                         m_escape_vc_available = true;
             }
 
