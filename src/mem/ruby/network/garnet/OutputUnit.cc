@@ -115,6 +115,25 @@ OutputUnit::has_free_vc(int vnet)
     return false;
 }
 
+int 
+OutputUnit::count_free_vc(int vnet)
+{
+    int vc_base = vnet*m_vc_per_vnet;
+    int num = 0;
+    for (int vc = vc_base; vc < vc_base + m_vc_per_vnet; vc++) {
+        if (m_router->get_wormhole_enabled()){
+            if (outVcState[vc].has_credit()){
+                num++;
+            }
+        }
+        else{
+            if (is_vc_idle(vc, curTick()))
+                num++;
+        }
+    }
+    return num;
+}
+
 // Escape VC
 bool
 OutputUnit::has_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
@@ -122,7 +141,7 @@ OutputUnit::has_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
     RoutingAlgorithm routing_algorithm =
         (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
 
-    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_){
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_){
         int vc_base = vnet*m_vc_per_vnet;
         for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
             if (m_router->get_wormhole_enabled()){
@@ -138,6 +157,31 @@ OutputUnit::has_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
         return false;
     }
     return OutputUnit::has_free_vc(vnet);
+}
+
+int
+OutputUnit::count_free_vc(int vnet, bool escape_vc_available, RouteInfo route)
+{
+    RoutingAlgorithm routing_algorithm =
+        (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
+    int num = 0;
+
+    if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_){
+        int vc_base = vnet*m_vc_per_vnet;
+        for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
+            if (m_router->get_wormhole_enabled()){
+                if (outVcState[vc].has_credit()){
+                    num++;
+                }
+            }
+            else{
+                if (is_vc_idle(vc, curTick()))
+                    num++;
+            }
+        }
+        return num;
+    }
+    return OutputUnit::count_free_vc(vnet);
 }
 
 int

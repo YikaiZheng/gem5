@@ -57,8 +57,12 @@ class VirtualChannel
     void set_active(Tick curTime);
     void set_outvc(int outvc)               { m_output_vc = outvc; }
     inline int get_outvc()                  { return m_output_vc; }
+    void set_outport_name(int outport_name) { m_output_port_name = outport_name; }
+    inline int get_outport_name()            { return m_output_port_name; }
     void set_outport(int outport)           { m_output_port = outport; };
+    void set_outport_2(int outport)         { m_output_port_2 = outport; };
     inline int get_outport()                  { return m_output_port; }
+    inline int get_outport_2()                 { return m_output_port_2; }
     // Escape VC
     void set_escape_vc_available(bool available) { m_escape_vc_available = available; }
     inline bool get_escape_vc_available()        { return m_escape_vc_available; }
@@ -108,8 +112,10 @@ class VirtualChannel
     flitBuffer inputBuffer;
     std::pair<VC_state_type, Tick> m_vc_state;
     int m_output_port;
+    int m_output_port_2;
     Tick m_enqueue_time;
     int m_output_vc;
+    int m_output_port_name;
     // Escape VC
     bool m_escape_vc_available;
     // Bubble

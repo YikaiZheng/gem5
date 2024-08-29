@@ -248,11 +248,24 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
             computeAdaptiveRouting(route.vnet, route.net_dest); break;
         case GREEDY_: outport =
             outportComputeGreedy(route, inport, inport_dirn); break;
+        case ESCAPE_VC_DOUBLE_: outport =
+            doubleOutportCompute(route, inport, inport_dirn); break;
         default: outport =
             lookupRoutingTable(route.vnet, route.net_dest); break;
     }
 
     assert(outport != -1);
+    return outport;
+}
+
+int RoutingUnit::outportCompute_2(RouteInfo route, int inport, PortDirection inport_dirn){
+    RoutingAlgorithm routing_algorithm =
+        (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
+    int outport = -1;
+    if (routing_algorithm == ESCAPE_VC_DOUBLE_)
+    {
+        outport = doubleOutportCompute_2(route, inport, inport_dirn);
+    }
     return outport;
 }
 
@@ -352,6 +365,53 @@ RoutingUnit::outportComputeCustom(RouteInfo route,
 {
     panic("%s placeholder executed", __FUNCTION__);
 }
+
+int 
+RoutingUnit::doubleOutportCompute(RouteInfo route, int inport, PortDirection inport_dirn)
+{
+    PortDirection outport_dirn = "Unknown";
+    int my_id = m_router->get_id();
+    int dest_id = route.dest_router;
+    int num_routers = m_router->get_net_ptr()->getNumRouters();
+    assert(!(my_id == dest_id));
+    int distance_east = (dest_id - my_id + num_routers) % num_routers;
+    int distance_west = (my_id - dest_id + num_routers) % num_routers;
+    if (distance_east == num_routers / 2)
+    {
+        outport_dirn = "Across";
+    }
+    else if (distance_east <= num_routers / 4 || (distance_east > num_routers / 2 && distance_west > num_routers / 4))
+    {
+        outport_dirn = "East";
+    }
+    else
+    {
+        outport_dirn = "West";
+    }
+    return m_outports_dirn2idx[outport_dirn];
+}
+
+int RoutingUnit::doubleOutportCompute_2(RouteInfo route, int inport, PortDirection inport_dirn)
+{
+    PortDirection outport_dirn = "Unknown";
+    int my_id = m_router->get_id();
+    int dest_id = route.dest_router;
+    int num_routers = m_router->get_net_ptr()->getNumRouters();
+    if (my_id == dest_id) {
+        return -1;
+    }
+    int distance_east = (dest_id - my_id + num_routers) % num_routers;
+    int distance_west = (my_id - dest_id + num_routers) % num_routers;
+    if (distance_east == num_routers / 2 || distance_east <= num_routers / 4 || distance_west <= num_routers / 4){
+        return -1;
+    }
+    else {
+        outport_dirn = "Across";
+    }
+    
+    return m_outports_dirn2idx[outport_dirn];
+}
+
 
 } // namespace garnet
 } // namespace ruby

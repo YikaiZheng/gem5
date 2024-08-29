@@ -119,6 +119,7 @@ class Router : public BasicRouter, public Consumer
 
     std::vector<int> get_congestion_metric(int vnet);
     int route_compute(RouteInfo route, int inport, PortDirection direction);
+    int route_compute_2(RouteInfo route, int inport, PortDirection direction);
     void grant_switch(int inport, flit *t_flit);
     void schedule_wakeup(Cycles time);
 

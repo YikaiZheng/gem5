@@ -41,8 +41,8 @@ namespace garnet
 {
 
 VirtualChannel::VirtualChannel()
-  : inputBuffer(), m_vc_state(IDLE_, Tick(0)), m_output_port(-1),
-    m_enqueue_time(INFINITE_), m_output_vc(-1)
+  : inputBuffer(), m_vc_state(IDLE_, Tick(0)), m_output_port(-1), m_output_port_2(-1),
+    m_enqueue_time(INFINITE_), m_output_vc(-1), m_output_port_name(-1)
 {
 }
 
@@ -53,7 +53,9 @@ VirtualChannel::set_idle(Tick curTime)
     m_vc_state.second = curTime;
     m_enqueue_time = Tick(INFINITE_);
     m_output_port = -1;
+    m_output_port_2 = -1;
     m_output_vc = -1;
+    m_output_port_name = -1;
 }
 
 void

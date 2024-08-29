@@ -82,9 +82,21 @@ class InputUnit : public Consumer
     }
 
     inline void
+    grant_outport_2(int vc, int outport)
+    {
+        virtualChannels[vc].set_outport_2(outport);
+    }
+
+    inline void
     grant_outvc(int vc, int outvc)
     {
         virtualChannels[vc].set_outvc(outvc);
+    }
+
+    inline void 
+    grant_outport_name(int vc, int outport_name)
+    {
+        virtualChannels[vc].set_outport_name(outport_name);
     }
 
     inline int
@@ -93,10 +105,22 @@ class InputUnit : public Consumer
         return virtualChannels[invc].get_outport();
     }
 
+    inline int 
+    get_outport_2(int invc)
+    {
+        return virtualChannels[invc].get_outport_2();
+    }
+
     inline int
     get_outvc(int invc)
     {
         return virtualChannels[invc].get_outvc();
+    }
+
+    inline int 
+    get_outport_name(int invc)
+    {
+        return virtualChannels[invc].get_outport_name();
     }
 
     // Escape VC

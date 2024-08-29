@@ -106,12 +106,15 @@ InputUnit::wakeup()
 
             int outport = m_router->route_compute(t_flit->get_route(),
                 m_id, m_direction);
+            int outport_2 = m_router->route_compute_2(t_flit->get_route(),
+                m_id, m_direction);
             PortDirection outport_dirn = m_router->getOutportDirection(outport);
 
             // Update output port in VC
             // All flits in this packet will use this output port
             // The output port field in the flit is updated after it wins SA
             grant_outport(vc, outport);
+            grant_outport_2(vc, outport_2);
 
             // Escape VC
             bool m_escape_vc_available = false;
@@ -121,18 +124,18 @@ InputUnit::wakeup()
             RoutingAlgorithm routing_algorithm =
                 (RoutingAlgorithm) m_router->get_net_ptr()->getRoutingAlgorithm();
 
-            if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_){
+            if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_){
                 int num_routers = m_router->get_net_ptr()->getNumRouters();
                 int my_id = m_router->get_id();
                 int src_id = t_flit->get_route().src_router;
                 int dest_id = t_flit->get_route().dest_router;
                 PortDirection outport_dirn = m_router->getOutportDirection(outport);
                 // East-traffic
-                if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers > num_routers/2) || outport_dirn == "East")
+                if ((outport_dirn == "Across" && (dest_id - src_id + num_routers) % num_routers > num_routers/2) || outport_dirn == "East")
                     if (my_id < src_id || my_id == 0 || src_id == 0)
                         m_escape_vc_available = true;
                 // West-traffic
-                if ((outport_dirn == "Across" && (dest_id - src_id) % num_routers < num_routers/2) || outport_dirn == "West")
+                if ((outport_dirn == "Across" && (dest_id - src_id + num_routers) % num_routers < num_routers/2) || outport_dirn == "West")
                     if (my_id > src_id || my_id == num_routers - 1 || src_id == num_routers - 1)
                         m_escape_vc_available = true;
             }

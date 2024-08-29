@@ -122,22 +122,81 @@ SwitchAllocator::arbitrate_inports()
                 // This flit is in SA stage
 
                 int outport = input_unit->get_outport(invc);
+                int outport_2 = input_unit->get_outport_2(invc);
                 int outvc = input_unit->get_outvc(invc);
-                if (m_router->get_wormhole_enabled())
+                int outport_name = input_unit->get_outport_name(invc);
+                if (m_router->get_wormhole_enabled()){
                     outvc = -1;
-
+                    outport_name = -1;
+                }
+                
                 // check if the flit in this InputVC is allowed to be sent
                 // send_allowed conditions described in that function.
-                bool make_request =
-                    send_allowed(inport, invc, outport, outvc);
+                if (outport_2 == -1 || outport_name == outport) {
+                    bool make_request =
+                        send_allowed(inport, invc, outport, outvc);
 
-                if (make_request) {
-                    m_input_arbiter_activity++;
-                    m_port_requests[inport] = outport;
-                    m_vc_winners[inport] = invc;
+                    if (make_request) {
+                        m_input_arbiter_activity++;
+                        m_port_requests[inport] = outport;
+                        m_vc_winners[inport] = invc;
 
-                    break; // got one vc winner for this port
+                        break; // got one vc winner for this port
+                    }
                 }
+                else if (outport_name == outport_2) {
+                    bool make_request =
+                        send_allowed(inport, invc, outport_2, outvc);
+
+                    if (make_request) {
+                        m_input_arbiter_activity++;
+                        m_port_requests[inport] = outport_2;
+                        m_vc_winners[inport] = invc;
+
+                        break; // got one vc winner for this port
+                    }
+                }
+                else {
+                    bool make_request =
+                        send_allowed(inport, invc, outport, outvc);
+                    bool make_request_2 =
+                        send_allowed(inport, invc, outport_2, outvc);
+                    if (make_request && make_request_2) {
+                        auto output_unit = m_router->getOutputUnit(outport);
+                        auto output_unit_2 = m_router->getOutputUnit(outport_2);
+                        int vnet = get_vnet(invc);
+                        bool escape_vc_available = input_unit->get_escape_vc_available(invc);
+                        RouteInfo route = input_unit->peekTopFlit(invc)->get_route();
+                        int num_free_vc = output_unit->count_free_vc(vnet, escape_vc_available, route);
+                        int num_free_vc_2 = output_unit_2->count_free_vc(vnet, escape_vc_available, route);
+                        if (num_free_vc > num_free_vc_2){
+                            m_input_arbiter_activity++;
+                            m_port_requests[inport] = outport;
+                            m_vc_winners[inport] = invc;
+                        }
+                        else{
+                            m_input_arbiter_activity++;
+                            m_port_requests[inport] = outport_2;
+                            m_vc_winners[inport] = invc;
+                        }
+                        break; // got one vc winner for this port
+                    }
+                    else if (make_request) {
+                        m_input_arbiter_activity++;
+                        m_port_requests[inport] = outport;
+                        m_vc_winners[inport] = invc;
+
+                        break; // got one vc winner for this port
+                    }
+                    else if (make_request_2) {
+                        m_input_arbiter_activity++;
+                        m_port_requests[inport] = outport_2;
+                        m_vc_winners[inport] = invc;
+
+                        break; // got one vc winner for this port
+                    }
+                }
+                    
             }
 
             invc++;
@@ -435,6 +494,7 @@ SwitchAllocator::vc_allocate(int outport, int inport, int invc)
     // has to get a valid VC since it checked before performing SA
     assert(outvc != -1);
     m_router->getInputUnit(inport)->grant_outvc(invc, outvc);
+    m_router->getInputUnit(inport)->grant_outport_name(invc, outport);
     return outvc;
 }
 
