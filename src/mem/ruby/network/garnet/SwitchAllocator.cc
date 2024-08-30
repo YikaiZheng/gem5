@@ -466,12 +466,12 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
         for (int vc_offset = 0; vc_offset < m_vc_per_vnet; vc_offset++) {
             int temp_vc = vc_base + vc_offset;
             if (input_unit->need_stage(temp_vc, SA_, curTick()) &&
-               (input_unit->get_outport(temp_vc) == outport) &&
+               ((input_unit->get_outport(temp_vc) == outport) || (input_unit->get_outport_2(temp_vc) == outport)) &&
                (input_unit->get_enqueue_time(temp_vc) < t_enqueue_time) &&
                (input_unit->get_escape_vc_available(temp_vc) >= m_escape_vc_available) &&
                (input_unit->get_bubble_needed(temp_vc) <= m_bubble_needed)
                ) {
-                // return false;
+                return false;
             }
         }
     }
