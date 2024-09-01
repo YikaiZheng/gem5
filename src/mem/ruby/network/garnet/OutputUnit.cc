@@ -143,7 +143,7 @@ OutputUnit::has_free_vc(int vnet, bool escape_vc_available, PortDirection outpor
 
     if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_ || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across")){
         int vc_base = vnet*m_vc_per_vnet;
-        for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
+        for (int vc = escape_vc_available ? vc_base : vc_base + m_router->get_evcs_per_vnet(); vc < vc_base + m_vc_per_vnet; vc++) {
             if (m_router->get_wormhole_enabled()){
                 if (outVcState[vc].has_credit()){
                     return true;
@@ -168,7 +168,7 @@ OutputUnit::count_free_vc(int vnet, bool escape_vc_available, PortDirection outp
 
     if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_ || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across")){
         int vc_base = vnet*m_vc_per_vnet;
-        for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
+        for (int vc = escape_vc_available ? vc_base : vc_base + m_router->get_evcs_per_vnet(); vc < vc_base + m_vc_per_vnet; vc++) {
             if (m_router->get_wormhole_enabled()){
                 if (outVcState[vc].has_credit()){
                     num++;
@@ -229,7 +229,7 @@ OutputUnit::select_free_vc(int vnet, bool escape_vc_available, PortDirection out
 
     if (routing_algorithm == ESCAPE_VC_ || routing_algorithm == ESCAPE_VC_ADAPTIVE_ || routing_algorithm == ESCAPE_VC_DOUBLE_ || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across")){
         int vc_base = vnet*m_vc_per_vnet;
-        for (int vc = escape_vc_available ? vc_base : vc_base + 1; vc < vc_base + m_vc_per_vnet; vc++) {
+        for (int vc = escape_vc_available ? vc_base : vc_base + m_router->get_evcs_per_vnet(); vc < vc_base + m_vc_per_vnet; vc++) {
             if (m_router->get_wormhole_enabled()){
                 if (outVcState[vc].has_credit()){
                     return vc;

@@ -52,6 +52,8 @@ class GarnetNetwork(RubyNetwork):
         50000, "network-level deadlock threshold"
     )
     wormhole = Param.Bool(False, "enable wormhole flow control")
+    evcs_per_vnet = Param.UInt32(1, "number of extra VCs per virtual network")
+    min_num_bubbles = Param.UInt32(1, "minimum number of bubbles")
 
 
 class GarnetNetworkInterface(ClockedObject):

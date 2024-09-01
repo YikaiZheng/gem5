@@ -130,6 +130,23 @@ def define_options(parser):
     )
 
     parser.add_argument(
+        "--evcs-per-vnet",
+        action="store",
+        type=int,
+        default=1,
+        help="""number of virtual channels per virtual network
+            inside garnet network.""",
+    )
+
+    parser.add_argument(
+        "--min-num-bubbles",
+        action="store",
+        type=int,
+        default=1,
+        help="minimum number of bubbles to be keeped",
+    )
+
+    parser.add_argument(
         "--depth",
         action="store",
         type=int,
@@ -188,6 +205,8 @@ def init_network(options, network, InterfaceClass):
         network.routing_algorithm = options.routing_algorithm
         network.garnet_deadlock_threshold = options.garnet_deadlock_threshold
         network.wormhole = options.wormhole
+        network.evcs_per_vnet = options.evcs_per_vnet
+        network.min_num_bubbles = options.min_num_bubbles
         network.buffers_per_ctrl_vc = options.depth
 
         # Create Bridges and connect them to the corresponding links

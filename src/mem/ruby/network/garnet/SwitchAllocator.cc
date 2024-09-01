@@ -129,7 +129,7 @@ SwitchAllocator::arbitrate_inports()
                     outvc = -1;
                     outport_name = -1;
                 }
-                
+
                 // check if the flit in this InputVC is allowed to be sent
                 // send_allowed conditions described in that function.
                 if (outport_2 == -1 || outport_name == outport) {
@@ -198,7 +198,7 @@ SwitchAllocator::arbitrate_inports()
                         break; // got one vc winner for this port
                     }
                 }
-                    
+
             }
 
             invc++;
@@ -310,15 +310,15 @@ SwitchAllocator::arbitrate_outports()
                     int opposite_id = (my_id + num_routers/2) % num_routers;
                     if (input_unit->get_bubble_needed(invc)){
                     }
-                    if (my_id == dest_id || (routing_algorithm == BUBBLE_ALAST_ && outport_dirn == "Across") || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across" && opposite_id == dest_id)){    
+                    if (my_id == dest_id || (routing_algorithm == BUBBLE_ALAST_ && outport_dirn == "Across") || (routing_algorithm == BUBBLE_DOUBLE_ && outport_dirn == "Across" && opposite_id == dest_id)){
                         PortDirection inport_dirn = m_router->getInportDirection(inport);
                         if (inport_dirn == "East")
-                            m_router->get_net_ptr()->incrementWestBubble(vnet);                         
+                            m_router->get_net_ptr()->incrementWestBubble(vnet);
                         if (inport_dirn == "West")
                             m_router->get_net_ptr()->incrementEastBubble(vnet);
                     }
                 }
-                
+
                 // flit ready for Switch Traversal
                 t_flit->advance_stage(ST_, curTick());
                 m_router->grant_switch(inport, t_flit);
@@ -439,7 +439,7 @@ SwitchAllocator::send_allowed(int inport, int invc, int outport, int outvc)
     // cannot send if no outvc or no credit.
     if (!has_outvc || !has_credit)
         return false;
-   
+
     if (m_bubble_needed){
         PortDirection outport_dirn = m_router->getOutportDirection(outport);
         if (outport_dirn == "East" && m_router->get_net_ptr()->isBubbleAllowedEast(vnet) == false)

@@ -80,6 +80,7 @@ class GarnetNetwork : public Network
     uint32_t getBuffersPerDataVC() { return m_buffers_per_data_vc; }
     uint32_t getBuffersPerCtrlVC() { return m_buffers_per_ctrl_vc; }
     int getRoutingAlgorithm() const { return m_routing_algorithm; }
+    uint32_t getEVCsPerVnet() const {return m_evcs_per_vnet;}
 
     bool isFaultModelEnabled() const { return m_enable_fault_model; }
     bool isWormholeEnabled() const { return m_enable_wormhole; }
@@ -172,6 +173,7 @@ class GarnetNetwork : public Network
     int m_num_cols;
     uint32_t m_ni_flit_size;
     uint32_t m_max_vcs_per_vnet;
+    uint32_t m_evcs_per_vnet;
     uint32_t m_buffers_per_ctrl_vc;
     uint32_t m_buffers_per_data_vc;
     int m_routing_algorithm;

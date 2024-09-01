@@ -75,6 +75,8 @@ GarnetNetwork::GarnetNetwork(const Params &p)
 
     m_enable_fault_model = p.enable_fault_model;
     m_enable_wormhole = p.wormhole;
+    m_min_num_bubbles = p.min_num_bubbles;
+    m_evcs_per_vnet = p.evcs_per_vnet;
     if (m_enable_fault_model)
         fault_model = p.fault_model;
 
@@ -389,7 +391,6 @@ GarnetNetwork::setNumBubbles(int vnet)
 {   
     assert(m_num_bubbles_east[vnet] == 0 && m_num_bubbles_west[vnet] == 0);
     m_max_num_bubbles = getNumRouters() * m_max_vcs_per_vnet;
-    m_min_num_bubbles = getNumRouters();
     m_num_bubbles_east[vnet] = m_max_num_bubbles;
     m_num_bubbles_west[vnet] = m_max_num_bubbles;
 }
